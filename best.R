@@ -5,6 +5,18 @@ best <- function(state, outcome) {
   outcomeDF[,17] <- as.numeric(outcomeDF[,17]) ## coerce heart failure feature to numeric
   outcomeDF[,23] <- as.numeric(outcomeDF[,23]) ## coerce pneumonia feature to numeric
   
+  oneresult <- function(vect=integer()) {
+    namevect <- character()
+    for (i in vect) {
+      name <- onestate$Hospital.Name[i]
+      namevect <- append(namevect, name)
+    }
+    namevect <- sort(namevect)
+    firstname <- namevect[1]
+    firstID <- which(onestate$Hospital.Name == firstname)
+    return(firstID)
+  }
+  
   ## Check that state and outcome are valid
   possibleoutcomes = c("heart failure", "heart attack", "pneumonia") ## list of possible outcomes to check input
   if (state %in% outcomeDF$State == FALSE) 
@@ -25,7 +37,12 @@ best <- function(state, outcome) {
     result <- which(onestate[,17] == minHF)
   if (outcome == "pneumonia")
     result <- which(onestate[,23] == minP)
-
+  
+  if (length(result) > 1) 
+    result <- oneresult(result)
+  
+  
+  
   name <- onestate$Hospital.Name[result]
   print(name)
 }
