@@ -14,19 +14,20 @@ rankall <- function(outcome, num = "best") {
   outcomeDF[,cause] <- as.numeric(outcomeDF[,cause]) ## coerce feature to numeric
   allStates <- unique(outcomeDF$State)[order(unique(outcomeDF$State))]
   
-  returnDF <- data.frame()
+  returnDF <- data.frame(row.names=c("hospital", "state"), stringsAsFactors=FALSE)
   ## Return hospital name in that state with the given rank 30-day death rate
   
   for (i in allStates) {
+    rank <- num
     onestate <- outcomeDF[outcomeDF$State == i,] ## subset of data for one state
     
-    if (is.numeric(num) && num > length(onestate$Hospital.Name)) {return(NA)} 
-    if (num == "best") { num <- 1 }
-    if (num == "worst") { num <- length(order(onestate[,cause], na.last=NA))}
+    if (is.integer(num) && num > length(onestate$Hospital.Name)) {return(NA)} 
+    if (num == "best") { rank <- 1 }
+    if (num == "worst") { rank <- length(order(onestate[,cause], na.last=NA))}
     
   
     
-    rankID <- order(onestate[,cause], na.last=NA)[num] ## may there is an easier way....
+    rankID <- order(onestate[,cause], na.last=NA)[rank] ## maybe there is an easier way....
     rankValue <- onestate[,cause][rankID]             ## look for the Names of the IDs with the Value that corresponds to the order of num
     rankVect <- which(onestate[,cause] == rankValue)
   
@@ -37,10 +38,11 @@ rankall <- function(outcome, num = "best") {
     }
   
   
-    num_order <- order(onestate[,cause],na.last=NA)[num]
-    name <- onestate$Hospital.Name[num_order]
-    returnDF <- rbind(returnDF, c(name, i))
+    rank_order <- order(onestate[,cause],na.last=NA)[rank]
+    name <- onestate$Hospital.Name[rank_order]
+    tmp_df <- t(data.frame(c(name,i), stringsAsFactors=FALSE))
+    returnDF <- rbind(returnDF, tmp_df)
   }  
   names(returnDF) <- c("hospital", "state")
-  print(returnDF)
+  return(returnDF)
 }
